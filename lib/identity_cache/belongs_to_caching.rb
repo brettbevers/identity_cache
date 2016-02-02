@@ -33,8 +33,9 @@ module IdentityCache
         foreign_key = options[:association_reflection].foreign_key
         self.class_eval(<<-CODE, __FILE__, __LINE__ + 1)
           def #{options[:cached_accessor_name]}
-            if IdentityCache.should_use_cache? && #{foreign_key}.present? && !association(:#{association}).loaded?
-              self.#{association} = association(:#{association}).klass.fetch_by_id(#{foreign_key})
+            klass = association(:#{association}).klass
+            if klass.should_use_cache? && #{foreign_key}.present? && !association(:#{association}).loaded?
+              self.#{association} = klass.fetch_by_id(#{foreign_key})
             else
               #{association}
             end
