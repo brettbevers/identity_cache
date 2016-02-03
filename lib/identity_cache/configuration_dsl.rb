@@ -255,7 +255,7 @@ module IdentityCache
           end
 
           def #{options[:cached_accessor_name]}
-            if IdentityCache.should_use_cache? || #{association}.loaded?
+            if self.class.should_use_cache? || #{association}.loaded?
               #{options[:population_method_name]} unless @#{options[:ids_variable_name]} || @#{options[:records_variable_name]}
               @#{options[:records_variable_name]} ||= #{options[:association_class]}.fetch_multi(@#{options[:ids_variable_name]})
             else
@@ -274,7 +274,7 @@ module IdentityCache
 
       def attribute_dynamic_fetcher(attribute, fields, values) #:nodoc:
         cache_key = rails_cache_key_for_attribute_and_fields_and_values(attribute, fields, values)
-        IdentityCache.fetch(cache_key) { identity_cache_conditions(fields, values).limit(1).pluck(attribute).first }
+        IdentityCache.fetch(cache_key, should_use_cache?) { identity_cache_conditions(fields, values).limit(1).pluck(attribute).first }
       end
 
       def add_parent_expiry_hook(options)
