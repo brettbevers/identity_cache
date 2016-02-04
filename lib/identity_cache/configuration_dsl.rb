@@ -190,7 +190,7 @@ module IdentityCache
       def identity_cache_single_value_dynamic_fetcher(fields, values) # :nodoc:
         raise_if_scoped
         cache_key = rails_cache_index_key_for_fields_and_values(fields, values)
-        id = IdentityCache.fetch(cache_key) { identity_cache_conditions(fields, values).limit(1).pluck(primary_key).first }
+        id = IdentityCache.fetch(cache_key, should_use_cache?) { identity_cache_conditions(fields, values).limit(1).pluck(primary_key).first }
         unless id.nil?
           record = fetch_by_id(id)
           IdentityCache.cache.delete(cache_key) unless record
@@ -202,7 +202,7 @@ module IdentityCache
       def identity_cache_multiple_value_dynamic_fetcher(fields, values) # :nodoc
         raise_if_scoped
         cache_key = rails_cache_index_key_for_fields_and_values(fields, values)
-        ids = IdentityCache.fetch(cache_key) { identity_cache_conditions(fields, values).pluck(primary_key) }
+        ids = IdentityCache.fetch(cache_key, should_use_cache?) { identity_cache_conditions(fields, values).pluck(primary_key) }
 
         ids.empty? ? [] : fetch_multi(ids)
       end
